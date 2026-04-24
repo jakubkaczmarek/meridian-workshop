@@ -7,6 +7,7 @@ export default {
     finance: '財務',
     demandForecast: '需要予測',
     restocking: '補充推奨',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -85,6 +86,12 @@ export default {
     totalValue: '総価値',
     lowStockItems: '在庫僅少品目',
     warehouses: '倉庫',
+    itemDetails: '在庫品詳細',
+    productDetails: '製品詳細',
+    stockLevel: '在庫レベル',
+    vsReorderPoint: '発注点との比較',
+    unitsRemaining: '残余数',
+    currentStock: '現在在庫',
     table: {
       sku: 'SKU',
       itemName: '品目名',
@@ -142,6 +149,7 @@ export default {
     costBreakdown: '調達 + 運営 + 人件費 + 間接費',
     margin: 'マージン',
     perOrderRevenue: '注文あたりの収益',
+    costBreakdownTitle: '費用明細',
     revenueVsCosts: {
       title: '月別収益対コスト',
       revenue: '収益',
@@ -344,6 +352,24 @@ export default {
     }
   },
 
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足の追跡と解決',
+    loading: 'バックログを読み込み中...',
+    highPriority: '高優先度',
+    mediumPriority: '中優先度',
+    lowPriority: '低優先度',
+    totalItems: 'バックログ合計',
+    cardTitle: 'バックログアイテム',
+    noItems: 'バックログなし - すべての注文が履行可能です！',
+    shortageDetails: '在庫不足詳細',
+    shortageAmount: '不足量',
+    itemSku: '商品SKU',
+    priorityLabel: '{level}優先度',
+    expectedDate: '予定日'
+  },
+
   // Common
   common: {
     loading: '読み込み中...',
@@ -356,7 +382,11 @@ export default {
     search: '検索',
     filter: 'フィルター',
     export: 'エクスポート',
-    items: '件'
+    items: '件',
+    actions: '操作',
+    priority: '優先度',
+    deleteTask: 'タスクを削除',
+    resetFilters: 'フィルターをリセット'
   },
 
   // Product Names
