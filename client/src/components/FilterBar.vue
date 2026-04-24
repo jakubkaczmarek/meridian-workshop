@@ -102,7 +102,7 @@ export default {
 
 <style scoped>
 .filters-bar {
-  background: #ffffff;
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 1px 0 rgba(15,23,42,0.04);
   padding: 0.625rem 0;
@@ -162,7 +162,7 @@ export default {
 
 .filter-select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
@@ -181,7 +181,7 @@ export default {
 }
 
 .reset-filters-btn:hover:not(:disabled) {
-  background: #f1f5f9;
+  background: var(--surface-2);
   border-color: var(--border-hover);
   color: var(--text-primary);
 }
