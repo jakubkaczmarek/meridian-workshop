@@ -122,5 +122,13 @@ export const api = {
     if (filters.month && filters.month !== 'all') params.append('month', filters.month)
     const response = await axios.get(`${API_BASE_URL}/reports/monthly-trends?${params.toString()}`)
     return response.data
+  },
+
+  async getRestockingRecommendations(budget = 0, filters = {}) {
+    const params = new URLSearchParams({ budget })
+    if (filters.warehouse && filters.warehouse !== 'all') params.append('warehouse', filters.warehouse)
+    if (filters.category && filters.category !== 'all') params.append('category', filters.category)
+    const response = await axios.get(`${API_BASE_URL}/restocking/recommendations?${params.toString()}`)
+    return response.data
   }
 }
