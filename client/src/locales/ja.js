@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充推奨',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -311,6 +312,38 @@ export default {
     selectLanguage: '言語を選択'
   },
 
+  // Restocking
+  restocking: {
+    title: '補充推奨',
+    description: '在庫レベルと需要予測に基づく発注推奨',
+    budgetLabel: '予算上限',
+    budgetPlaceholder: '最大予算を入力（0 = 制限なし）',
+    applyBudget: '適用',
+    itemsRecommended: '推奨品目数',
+    totalCost: '合計費用',
+    withinBudgetTotal: '予算内',
+    noItems: '補充不要 — すべての品目は十分な在庫があります。',
+    table: {
+      sku: 'SKU',
+      product: '製品',
+      category: 'カテゴリ',
+      warehouse: '倉庫',
+      onHand: '手持在庫',
+      reorderPoint: '再注文点',
+      shortage: '不足',
+      forecastedDemand: '予測需要',
+      recommendedQty: '推奨発注数',
+      unitCost: '単価',
+      estimatedCost: '推定費用',
+      priority: '優先度',
+      budgetStatus: '予算状況'
+    },
+    budgetStatus: {
+      withinBudget: '予算内',
+      overBudget: '予算超過'
+    }
+  },
+
   // Common
   common: {
     loading: '読み込み中...',
@@ -360,6 +393,31 @@ export default {
     'USB-C PD 100W Power Supply': 'USB-C PD 100W電源',
     'Battery Backup Power Supply': 'バッテリバックアップ電源',
     'Adjustable Bench Power Supply': '可変ベンチ電源'
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期パフォーマンス指標と月別収益トレンドを表示',
+    quarterlyPerformance: '四半期別パフォーマンス',
+    monthlyRevenueTrend: '月別収益トレンド',
+    monthOverMonth: '月別比較分析',
+    ytdSummary: '年度累計サマリー',
+    totalRevenueYtd: '総収益（年度累計）',
+    avgMonthlyRevenue: '月平均収益',
+    totalOrdersYtd: '総注文数（年度累計）',
+    bestQuarter: '最高パフォーマンス四半期',
+    quarter: '四半期',
+    totalOrders: '総注文数',
+    totalRevenue: '総収益',
+    avgOrderValue: '平均注文額',
+    fulfillmentRate: '履行率',
+    month: '月',
+    orders: '注文数',
+    revenue: '収益',
+    change: '変化',
+    growthRate: '成長率',
+    noData: 'レポートデータがありません'
   },
 
   // Customer Names

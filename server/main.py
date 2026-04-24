@@ -120,6 +120,21 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class RestockingRecommendation(BaseModel):
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    quantity_on_hand: int
+    reorder_point: int
+    shortage: int
+    forecasted_demand: int
+    recommended_qty: int
+    unit_cost: float
+    estimated_cost: float
+    priority: str
+    within_budget: bool
+
 # API endpoints
 @app.get("/")
 def root():
@@ -132,6 +147,72 @@ def get_inventory(
 ):
     """Get all inventory items with optional filtering"""
     return apply_filters(inventory_items, warehouse, category)
+
+@app.get("/api/restocking/recommendations", response_model=dict)
+def get_restocking_recommendations(
+    budget: float = 0.0,
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None
+):
+    """Get restocking recommendations based on stock levels and demand forecasts"""
+    filtered = apply_filters(inventory_items, warehouse, category)
+    forecast_by_sku = {f["item_sku"]: f["forecasted_demand"] for f in demand_forecasts}
+
+    recommendations = []
+    for item in filtered:
+        qty = item["quantity_on_hand"]
+        rp = item["reorder_point"]
+
+        if qty <= rp:
+            priority = "high"
+        elif qty <= rp * 1.5:
+            priority = "medium"
+        else:
+            continue
+
+        fd = forecast_by_sku.get(item["sku"], 0)
+        recommended_qty = max(0, rp - qty) + fd
+        estimated_cost = round(recommended_qty * item["unit_cost"], 2)
+
+        recommendations.append({
+            "sku": item["sku"],
+            "name": item["name"],
+            "category": item["category"],
+            "warehouse": item["warehouse"],
+            "quantity_on_hand": qty,
+            "reorder_point": rp,
+            "shortage": max(0, rp - qty),
+            "forecasted_demand": fd,
+            "recommended_qty": recommended_qty,
+            "unit_cost": item["unit_cost"],
+            "estimated_cost": estimated_cost,
+            "priority": priority,
+            "within_budget": True,
+        })
+
+    recommendations.sort(key=lambda r: (0 if r["priority"] == "high" else 1, -r["estimated_cost"]))
+
+    if budget > 0:
+        running = 0.0
+        for rec in recommendations:
+            if running + rec["estimated_cost"] <= budget:
+                rec["within_budget"] = True
+                running += rec["estimated_cost"]
+            else:
+                rec["within_budget"] = False
+
+    total_cost = round(sum(r["estimated_cost"] for r in recommendations), 2)
+    within = [r for r in recommendations if r["within_budget"]]
+
+    return {
+        "items": recommendations,
+        "summary": {
+            "total_items": len(recommendations),
+            "total_cost": total_cost,
+            "items_within_budget": len(within),
+            "total_cost_within_budget": round(sum(r["estimated_cost"] for r in within), 2),
+        }
+    }
 
 @app.get("/api/inventory/{item_id}", response_model=InventoryItem)
 def get_inventory_item(item_id: str):
@@ -228,12 +309,19 @@ def get_recent_transactions():
     return recent_transactions
 
 @app.get("/api/reports/quarterly")
-def get_quarterly_reports():
+def get_quarterly_reports(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
     """Get quarterly performance reports"""
-    # Calculate quarterly statistics from orders
+    filtered = apply_filters(orders, warehouse, category, status)
+    filtered = filter_by_month(filtered, month)
+
     quarters = {}
 
-    for order in orders:
+    for order in filtered:
         order_date = order.get('order_date', '')
         # Determine quarter
         if '2025-01' in order_date or '2025-02' in order_date or '2025-03' in order_date:
@@ -274,11 +362,19 @@ def get_quarterly_reports():
     return result
 
 @app.get("/api/reports/monthly-trends")
-def get_monthly_trends():
+def get_monthly_trends(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
     """Get month-over-month trends"""
+    filtered = apply_filters(orders, warehouse, category, status)
+    filtered = filter_by_month(filtered, month)
+
     months = {}
 
-    for order in orders:
+    for order in filtered:
         order_date = order.get('order_date', '')
         if not order_date:
             continue

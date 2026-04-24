@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Components — Current-State Architecture</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    line-height: 1.6;
+  }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 60px 40px 80px; }
+
+  /* Header */
+  .header { margin-bottom: 56px; border-bottom: 1px solid #1e293b; padding-bottom: 32px; }
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+    text-transform: uppercase; color: #60a5fa; margin-bottom: 12px;
+  }
+  h1 { font-size: 36px; font-weight: 700; color: #f1f5f9; }
+  .subtitle { color: #94a3b8; margin-top: 8px; font-size: 15px; }
+
+  /* Section */
+  .section { margin-bottom: 56px; }
+  h2 {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #60a5fa;
+    margin-bottom: 24px; padding-bottom: 8px;
+    border-bottom: 1px solid #1e293b;
+  }
+  h3 { font-size: 15px; font-weight: 600; color: #cbd5e1; margin-bottom: 12px; }
+
+  /* System diagram */
+  .diagram {
+    background: #0a0f1e;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 40px;
+    overflow-x: auto;
+  }
+
+  .diagram-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-width: 680px;
+  }
+
+  .layer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .box {
+    border-radius: 10px;
+    padding: 18px 24px;
+    text-align: center;
+    min-width: 160px;
+  }
+
+  .box-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .box-name { font-size: 16px; font-weight: 700; }
+  .box-meta { font-size: 11px; margin-top: 4px; opacity: 0.7; }
+
+  .box-browser  { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; }
+  .box-frontend { background: #0d3b7a; border: 1px solid #1d4ed8; color: #bfdbfe; }
+  .box-backend  { background: #064e3b; border: 1px solid #059669; color: #a7f3d0; }
+  .box-data     { background: #1c1917; border: 1px solid #44403c; color: #d6d3d1; }
+
+  .arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 0 16px;
+  }
+  .arrow-line {
+    width: 48px; height: 2px; background: #334155;
+    position: relative;
+  }
+  .arrow-line::after {
+    content: '';
+    position: absolute; right: -1px; top: -4px;
+    border-left: 8px solid #334155;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+  .arrow-label { font-size: 10px; color: #64748b; letter-spacing: 0.05em; white-space: nowrap; }
+
+  .cors-badge {
+    font-size: 10px; font-weight: 600; color: #fbbf24;
+    background: #451a03; border: 1px solid #92400e;
+    border-radius: 4px; padding: 2px 7px;
+    margin-top: 4px;
+  }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    text-align: left; padding: 10px 14px;
+    background: #1e293b; color: #94a3b8;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  th:first-child { border-radius: 6px 0 0 0; }
+  th:last-child  { border-radius: 0 6px 0 0; }
+  td { padding: 10px 14px; border-bottom: 1px solid #1e293b; color: #cbd5e1; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #0d1929; }
+
+  .tag {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 4px; margin-right: 4px;
+  }
+  .tag-get     { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+  .tag-post    { background: #1e1b4b; color: #a5b4fc; border: 1px solid #3730a3; }
+  .tag-high    { background: #450a0a; color: #fca5a5; border: 1px solid #991b1b; }
+  .tag-medium  { background: #451a03; color: #fdba74; border: 1px solid #92400e; }
+
+  code {
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 12px; background: #1e293b;
+    padding: 1px 6px; border-radius: 4px; color: #7dd3fc;
+  }
+
+  /* Two-column grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .card {
+    background: #0a0f1e; border: 1px solid #1e293b;
+    border-radius: 10px; padding: 24px;
+  }
+  .card ul { list-style: none; padding: 0; }
+  .card ul li {
+    padding: 6px 0; border-bottom: 1px solid #1e293b;
+    font-size: 13.5px; color: #cbd5e1;
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  .card ul li:last-child { border-bottom: none; }
+  .card ul li .li-label { color: #60a5fa; font-weight: 600; min-width: 80px; }
+
+  /* Stack table */
+  .stack-table { border: 1px solid #1e293b; border-radius: 8px; overflow: hidden; }
+  .stack-table th { border-bottom: 1px solid #334155; }
+
+  /* Gap badges */
+  .gap-list { display: flex; flex-direction: column; gap: 12px; }
+  .gap-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: #0a0f1e; border: 1px solid #1e293b;
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .gap-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .gap-title { font-weight: 600; color: #f1f5f9; font-size: 14px; }
+  .gap-desc { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+  .gap-high   { border-left: 3px solid #ef4444; }
+  .gap-medium { border-left: 3px solid #f59e0b; }
+
+  /* Footer */
+  .footer {
+    margin-top: 64px; padding-top: 24px;
+    border-top: 1px solid #1e293b;
+    font-size: 12px; color: #475569;
+    display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="eyebrow">R4 — Architecture Documentation</div>
+    <h1>Meridian Components<br>Current-State Architecture</h1>
+    <p class="subtitle">Prepared by Accenture · Engagement delivery · April 2026</p>
+  </div>
+
+  <!-- 1. System Overview -->
+  <div class="section">
+    <h2>System Overview</h2>
+    <div class="diagram">
+      <div class="diagram-inner">
+
+        <div class="layer">
+          <div class="box box-browser">
+            <div class="box-label">Client</div>
+            <div class="box-name">Browser</div>
+            <div class="box-meta">End user</div>
+          </div>
+        </div>
+
+        <div class="arrow">
+          <div class="arrow-line"></div>
+          <div class="arrow-label">HTTP :3000</div>
+        </div>
+
+        <div class="layer">
+          <div class="box box-frontend">
+            <div class="box-label">Frontend</div>
+            <div class="box-name">Vue 3 SPA</div>
+            <div class="box-meta">Vite · port 3000</div>
+          </div>
+        </div>
+
+        <div class="arrow">
+          <div class="arrow-line"></div>
+          <div class="arrow-label">Axios :8001/api</div>
+          <div class="cors-badge">CORS *</div>
+        </div>
+
+        <div class="layer">
+          <div class="box box-backend">
+            <div class="box-label">Backend</div>
+            <div class="box-name">FastAPI</div>
+            <div class="box-meta">Uvicorn · port 8001</div>
+          </div>
+        </div>
+
+        <div class="arrow">
+          <div class="arrow-line"></div>
+          <div class="arrow-label">file I/O at startup</div>
+        </div>
+
+        <div class="layer">
+          <div class="box box-data">
+            <div class="box-label">Data</div>
+            <div class="box-name">JSON Files</div>
+            <div class="box-meta">server/data/ · in-memory</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Frontend -->
+  <div class="section">
+    <h2>Frontend Layer</h2>
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="card">
+        <h3>Routes &amp; Views</h3>
+        <ul>
+          <li><span class="li-label">/</span> Dashboard — KPI summary cards</li>
+          <li><span class="li-label">/inventory</span> Inventory — stock levels by SKU</li>
+          <li><span class="li-label">/orders</span> Orders — customer order tracking</li>
+          <li><span class="li-label">/demand</span> Demand — forecast trends</li>
+          <li><span class="li-label">/spending</span> Spending — financial analytics</li>
+          <li><span class="li-label">/reports</span> Reports — quarterly / monthly</li>
+          <li><span class="li-label">/restocking</span> Restocking — PO recommendations</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Shared Composables</h3>
+        <ul>
+          <li><span class="li-label">useFilters</span> Global filter state (warehouse, category, period, status)</li>
+          <li><span class="li-label">useAuth</span> Current user, session, initials</li>
+          <li><span class="li-label">useI18n</span> Locale (en/ja), <code>t()</code> translation, currency conversion</li>
+        </ul>
+        <h3 style="margin-top:20px;">Utilities</h3>
+        <ul>
+          <li><span class="li-label">api.js</span> Axios client · base <code>http://localhost:8001/api</code></li>
+          <li><span class="li-label">currency.js</span> USD/JPY formatting (1 USD = 150 JPY hardcoded)</li>
+        </ul>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>src/main.js</code></td><td>App bootstrap, Vue Router configuration, all route definitions</td></tr>
+        <tr><td><code>src/App.vue</code></td><td>Shell layout — top nav, global FilterBar, router-view, modal overlays</td></tr>
+        <tr><td><code>src/api.js</code></td><td>Centralized Axios client; one method per backend endpoint</td></tr>
+        <tr><td><code>src/composables/useFilters.js</code></td><td>Singleton reactive filter state consumed by all views and api.js</td></tr>
+        <tr><td><code>src/composables/useI18n.js</code></td><td>Custom i18n — locale files en.js / ja.js, stored in localStorage</td></tr>
+        <tr><td><code>src/utils/currency.js</code></td><td>formatCurrency, convertAmount (USD→JPY)</td></tr>
+        <tr><td><code>src/locales/en.js</code>, <code>ja.js</code></td><td>Translation dictionaries for UI strings and domain names</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. Backend -->
+  <div class="section">
+    <h2>Backend Layer</h2>
+
+    <table style="margin-bottom:24px;">
+      <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Query Params</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/</code></td>
+          <td>Health check</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/inventory</code></td>
+          <td>List inventory items</td>
+          <td>warehouse, category</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/inventory/{id}</code></td>
+          <td>Single inventory item</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/orders</code></td>
+          <td>List orders</td>
+          <td>warehouse, category, status, month</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/orders/{id}</code></td>
+          <td>Single order</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/demand</code></td>
+          <td>Demand forecasts</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/backlog</code></td>
+          <td>Backlog items</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/restocking/recommendations</code></td>
+          <td>Computed restock recommendations</td>
+          <td>budget, warehouse, category</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/dashboard/summary</code></td>
+          <td>KPI aggregates</td>
+          <td>warehouse, category, status, month</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/spending/summary</code></td>
+          <td>Total spending stats</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/spending/monthly</code></td>
+          <td>Month-over-month breakdown</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/spending/categories</code></td>
+          <td>Spending by category</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/spending/transactions</code></td>
+          <td>Recent transactions</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/reports/quarterly</code></td>
+          <td>Quarterly KPIs (supports Q1-2025 format)</td>
+          <td>warehouse, category, status, month</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-get">GET</span></td>
+          <td><code>/api/reports/monthly-trends</code></td>
+          <td>Month-over-month trends</td>
+          <td>warehouse, category, status, month</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card">
+      <h3>Data Files — <code>server/data/</code></h3>
+      <ul>
+        <li><span class="li-label">inventory.json</span> ~25 SKUs across San Francisco &amp; London warehouses, 6 categories</li>
+        <li><span class="li-label">orders.json</span> 130+ orders Jan–Dec 2025 with nested line items (~154 KB)</li>
+        <li><span class="li-label">demand_forecasts.json</span> Per-SKU demand &amp; trend data</li>
+        <li><span class="li-label">backlog_items.json</span> Unmet demand linked to orders by string ID</li>
+        <li><span class="li-label">purchase_orders.json</span> Created POs (empty at handoff, API-ready)</li>
+        <li><span class="li-label">spending.json</span> Pre-computed summaries + monthly/category breakdowns</li>
+        <li><span class="li-label">transactions.json</span> 100+ transaction records (~14 KB)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 4. Tech Stack -->
+  <div class="section">
+    <h2>Tech Stack</h2>
+    <div class="stack-table">
+      <table>
+        <thead>
+          <tr><th>Concern</th><th>Frontend</th><th>Backend</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Language</td><td>JavaScript (ES2022)</td><td>Python 3.11+</td></tr>
+          <tr><td>Framework</td><td>Vue 3 Composition API</td><td>FastAPI 0.110+</td></tr>
+          <tr><td>Server</td><td>Vite dev server · port 3000</td><td>Uvicorn ASGI · port 8001</td></tr>
+          <tr><td>Routing</td><td>Vue Router v4</td><td>FastAPI path operations</td></tr>
+          <tr><td>State management</td><td>Composables (no Vuex/Pinia)</td><td>In-memory Python dicts/lists</td></tr>
+          <tr><td>HTTP client</td><td>Axios v1.6</td><td>—</td></tr>
+          <tr><td>Data validation</td><td>—</td><td>Pydantic v2</td></tr>
+          <tr><td>Persistence</td><td>localStorage (locale)</td><td>JSON files (read-only at runtime)</td></tr>
+          <tr><td>i18n</td><td>Custom useI18n composable (en, ja)</td><td>—</td></tr>
+          <tr><td>Testing</td><td>Playwright (E2E)</td><td>pytest + httpx</td></tr>
+          <tr><td>API docs</td><td>—</td><td>Swagger UI at <code>/docs</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5. Known Gaps -->
+  <div class="section">
+    <h2>Known Gaps — Remediation Scope</h2>
+    <div class="gap-list">
+      <div class="gap-item gap-high">
+        <div class="gap-icon">🔐</div>
+        <div>
+          <div class="gap-title">No authentication or authorization</div>
+          <div class="gap-desc">All endpoints are publicly accessible. CORS is configured to allow all origins (<code>*</code>). Production deployment requires auth middleware and origin restriction. <em>Outside current SOW; flagged for Meridian IT.</em></div>
+        </div>
+      </div>
+      <div class="gap-item gap-high">
+        <div class="gap-icon">💾</div>
+        <div>
+          <div class="gap-title">No database — data lost on restart</div>
+          <div class="gap-desc">All writes (e.g., purchase order creation) are in-memory only. Restarting the server resets to the JSON file state. Suitable for demo; requires a persistent store (PostgreSQL, etc.) for production.</div>
+        </div>
+      </div>
+      <div class="gap-item gap-medium">
+        <div class="gap-icon">📊</div>
+        <div>
+          <div class="gap-title">Reports module defects (R1)</div>
+          <div class="gap-desc">Filter wiring incomplete at handoff — some combinations produce incorrect results. Console errors present. Under active remediation in this engagement.</div>
+        </div>
+      </div>
+      <div class="gap-item gap-medium">
+        <div class="gap-icon">🧪</div>
+        <div>
+          <div class="gap-title">No automated test coverage delivered</div>
+          <div class="gap-desc">Previous vendor delivered zero automated tests. E2E test scaffolding (Playwright) and backend test suite (pytest) are being added as R3 deliverables in this engagement.</div>
+        </div>
+      </div>
+      <div class="gap-item gap-medium">
+        <div class="gap-icon">🌐</div>
+        <div>
+          <div class="gap-title">Partial i18n coverage</div>
+          <div class="gap-desc">English and Japanese locale files exist but some UI strings are hardcoded in English. Currency conversion uses a hardcoded exchange rate (1 USD = 150 JPY). Tracked under D2.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Meridian Components · Current-State Architecture · April 2026</span>
+    <span>Accenture Delivery Team · Confidential</span>
+  </div>
+
+</div>
+</body>
+</html>
