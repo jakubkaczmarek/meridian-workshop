@@ -311,6 +311,31 @@ export default {
     selectLanguage: 'Select Language'
   },
 
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly revenue trends',
+    quarterlyPerformance: 'Quarterly Performance',
+    monthlyRevenueTrend: 'Monthly Revenue Trend',
+    monthOverMonth: 'Month-over-Month Analysis',
+    ytdSummary: 'YTD Summary',
+    totalRevenueYtd: 'Total Revenue (YTD)',
+    avgMonthlyRevenue: 'Avg Monthly Revenue',
+    totalOrdersYtd: 'Total Orders (YTD)',
+    bestQuarter: 'Best Performing Quarter',
+    quarter: 'Quarter',
+    totalOrders: 'Total Orders',
+    totalRevenue: 'Total Revenue',
+    avgOrderValue: 'Avg Order Value',
+    fulfillmentRate: 'Fulfillment Rate',
+    month: 'Month',
+    orders: 'Orders',
+    revenue: 'Revenue',
+    change: 'Change',
+    growthRate: 'Growth Rate',
+    noData: 'No report data available'
+  },
+
   // Common
   common: {
     loading: 'Loading...',

@@ -362,6 +362,31 @@ export default {
     'Adjustable Bench Power Supply': '可変ベンチ電源'
   },
 
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期パフォーマンス指標と月別収益トレンドを表示',
+    quarterlyPerformance: '四半期別パフォーマンス',
+    monthlyRevenueTrend: '月別収益トレンド',
+    monthOverMonth: '月別比較分析',
+    ytdSummary: '年度累計サマリー',
+    totalRevenueYtd: '総収益（年度累計）',
+    avgMonthlyRevenue: '月平均収益',
+    totalOrdersYtd: '総注文数（年度累計）',
+    bestQuarter: '最高パフォーマンス四半期',
+    quarter: '四半期',
+    totalOrders: '総注文数',
+    totalRevenue: '総収益',
+    avgOrderValue: '平均注文額',
+    fulfillmentRate: '履行率',
+    month: '月',
+    orders: '注文数',
+    revenue: '収益',
+    change: '変化',
+    growthRate: '成長率',
+    noData: 'レポートデータがありません'
+  },
+
   // Customer Names
   customerNames: {
     'MegaCorp Industries': 'メガコープ工業',
