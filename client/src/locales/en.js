@@ -7,6 +7,7 @@ export default {
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -85,6 +86,12 @@ export default {
     totalValue: 'Total Value',
     lowStockItems: 'Low Stock Items',
     warehouses: 'Warehouses',
+    itemDetails: 'Inventory Item Details',
+    productDetails: 'Product Details',
+    stockLevel: 'Stock Level',
+    vsReorderPoint: 'vs. reorder point',
+    unitsRemaining: 'Units Remaining',
+    currentStock: 'Current Stock',
     table: {
       sku: 'SKU',
       itemName: 'Item Name',
@@ -142,6 +149,7 @@ export default {
     costBreakdown: 'Procurement + Operational + Labor + Overhead',
     margin: 'margin',
     perOrderRevenue: 'Per order revenue',
+    costBreakdownTitle: 'Cost Breakdown',
     revenueVsCosts: {
       title: 'Monthly Revenue vs Costs',
       revenue: 'Revenue',
@@ -369,6 +377,24 @@ export default {
     }
   },
 
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    loading: 'Loading backlog...',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    cardTitle: 'Backlog Items',
+    noItems: 'No backlog items - all orders can be fulfilled!',
+    shortageDetails: 'Inventory Shortage Details',
+    shortageAmount: 'Shortage Amount',
+    itemSku: 'Item SKU',
+    priorityLabel: '{level} Priority',
+    expectedDate: 'Expected Date'
+  },
+
   // Common
   common: {
     loading: 'Loading...',
@@ -381,6 +407,10 @@ export default {
     search: 'Search',
     filter: 'Filter',
     export: 'Export',
-    items: 'items'
+    items: 'items',
+    actions: 'Actions',
+    priority: 'Priority',
+    deleteTask: 'Delete task',
+    resetFilters: 'Reset all filters'
   }
 }
